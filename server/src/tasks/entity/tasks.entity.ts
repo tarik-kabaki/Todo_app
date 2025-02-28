@@ -4,8 +4,6 @@ import {
   PrimaryGeneratedColumn,
   CreateDateColumn,
   UpdateDateColumn,
-  ManyToOne,
-  OneToMany,
 } from 'typeorm';
 
 @Entity()
@@ -16,9 +14,12 @@ export class Tasks {
   @Column()
   title: string;
 
-  @Column({default:'To Do'})
+  @Column({ default: 'To Do' })
   status: string;
-  
+
+  @Column({ default: 'Low' })
+  praio: string;
+
   @Column()
   disc: string;
 
