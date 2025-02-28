@@ -8,8 +8,8 @@ import Head_tabs from './components/head_tabs.vue';
 <template>
     <div class="w-full h-screen flex items-center justify-center bg-linear-to-r/srgb from-[#101011] to-[#18181a]">
       <div class="w-[600px] max-w-[800px] h-[800px] max-h-[800px] border-[1px] border-[#363636] bg-[#1a1a1b] rounded-2xl">
-        <Head_title/>  
         <Head_tabs />
+        <Head_title/>  
         <div class="p-10">
         <Create_task />
         <Main_body />

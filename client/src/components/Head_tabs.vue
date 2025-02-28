@@ -7,7 +7,7 @@
     <div
         v-for="(tab, index) in tabs"
         :key="index"
-        :class="['cursor-pointer p-5 font-semibold flex items-center gap-2 text-[14px]', activeTab === tab.name ? 'text-blue-500 duration-300' : '']"
+        :class="['cursor-pointer p-5 font-semibold flex items-center gap-2 text-[14px] hover:text-blue-500 duration-300', activeTab === tab.name ? 'text-blue-500 duration-300' : '']"
         @click="selectTab(tab.name)">
         <div :class="['w-[8px] h-[8px] rounded-full ', 
          tab.name === 'tab0' ? 'bg-gray-500 duration-500' :
@@ -28,7 +28,7 @@ export default {
       newTask: '',
       isVisible: false, 
       tasks: [],
-      activeTab: "tab1", // Default active tab
+      activeTab: "tab0", // Default active tab
       tabs: [
       { name: "tab0", label: "All" },
       { name: "tab1", label: "Todo" },
