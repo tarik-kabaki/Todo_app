@@ -3,6 +3,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Tasks } from './entity/tasks.entity';
 import { TasksDto } from './dto/tasks.dto';
+import { UpdateTaskDto } from './dto/update-task.dto';
 
 @Injectable()
 export class TasksService {
@@ -14,18 +15,21 @@ export class TasksService {
     return await this.tasksRepo.find()
   }
 
-  async create_todo(tasksDto: TasksDto) {
-    const task = await this.tasksRepo.create(tasksDto);
-    const exsted_task = task.title;
+  async find_one_tasks(id: number) {
+    const task = await this.tasksRepo.findOne({
+      where: { id: id }
+    });
 
-    if (exsted_task) {
-      return 'This task with this title already existed';
-    }
+    return task;
+  }
+
+  async create_todo(tasksDto: TasksDto) {
+    const task = this.tasksRepo.create(tasksDto);
 
     return await this.tasksRepo.save(task);
   }
 
-  async update_todo(task_id: number, status: string, praio: string) {
+  async update_todo(task_id: number, updateTaskDto: UpdateTaskDto) {
     const task = await this.tasksRepo.findOne({
       where: { id: task_id },
     });
@@ -34,15 +38,10 @@ export class TasksService {
       throw new NotFoundException('This task is not existed');
     }
 
-    if (praio) {
-      task.praio = praio;
-    }
-
-    if (status) {
-      task.status = status;
-    }
-
-
+    task.status = updateTaskDto.status ? updateTaskDto.status : task.status;
+    task.praio = updateTaskDto.praio ? updateTaskDto.praio : task.praio;
+    task.title = updateTaskDto.title ? updateTaskDto.title : task.title;
+    task.disc = updateTaskDto.disc ? updateTaskDto.disc : task.disc;
 
     return await this.tasksRepo.save(task);
   }
@@ -56,6 +55,8 @@ export class TasksService {
       throw new NotFoundException();
     }
 
-    return this.tasksRepo.remove(message);
+    this.tasksRepo.remove(message);
+
+    return task_id;
   }
 }

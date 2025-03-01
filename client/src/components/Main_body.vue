@@ -1,57 +1,171 @@
 <script setup>
+import { ref, computed } from 'vue';
 import Popover from 'primevue/popover';
 import Button from 'primevue/button';
-import { ref } from 'vue';
-import OpenModel from './model/openModel.vue';
+import OpenModel from './model/OpenModel.vue';
+import Head_tabs from './Head_tabs.vue';
+import { getData_onetask } from '@/API/API';
+import { HOST } from '@/env/env';
+
+const emit = defineEmits();
+
+const props = defineProps({
+  tasks: {
+    type: Array,
+    required: true
+  }
+});
 
 const op = ref();
-const toggle = (event) => {
-    op.value.toggle(event);
-}
-
 const visible = ref(false);
 const type_ = ref(null);
-console.log(type_)
+const cardId_V = ref();
+const popoverVisible = ref(null);
+const selectedStatus = ref(null);  
+const selectedPriority = ref(null); 
+const tab = ref(null);
+
+const filteredTasks = computed(() => {
+
+  if (tab.value === 'All' || !tab.value) {
+    return props.tasks;
+  }
+  return props.tasks.filter(task => task.status === tab.value);
+});
+
+
+const togglePopover = (index) => {
+  if (popoverVisible.value === index) {
+    popoverVisible.value = null;
+  } else {
+    popoverVisible.value = index;
+  }
+};
+
+const handleSendOneCrad = async (data) => {
+  try {
+    await getData_onetask(HOST, data).then((data) => {
+      console.log(data)
+      emit('sendData', data);
+      emit('toggle-side-details');
+    });
+  } catch (error) {
+    console.error('There was an error fetching the data:', error);
+  }
+};
+
+const removedData_ = (data) => {
+  emit('toParentData_remove', data);
+};
+
+const updatedData_ = (data) => {
+  console.log(import.meta.env.VUE_SERVER_HOST);
+  emit('toParentData_update', data);
+};
+
+const handleSelectedTab = (tab_data) => {
+  tab.value = tab_data
+};
 </script>
 
-<template>
-    <section class="w-full h-[400px] overflow-y-auto flex flex-col gap-5">
-        <OpenModel :visible="visible" :type="[type_]" @update:visible="visible = $event" />
-        <div class="w-full h-auto max-h-[400px] bg-[#20202091] border-[1px] border-[#414141b0] p-5 rounded-xl relative hover:opacity-70 duration-300 cursor-pointer"> 
-            <h1 class="absolute bottom-3 right-3 font-semibold text-xs flex items-center gap-1 text-red-500">
-                <i class="pi pi-sort-amount-up" style="font-size: 1rem"></i>
-                High
-            </h1>
-            <div class="flex gap-4 mb-5 justify-between items-center w-full mt-3">
-                <div class="max-w-[80%] overflow-hidden flex gap-5"> 
-                    <div>
-                        <h1 class="text-xl text-gray-300 font-semibold mb-1">testing title</h1>
-                        <h1 class="text-orange-400 font-semibold text-[14px] flex items-center mb-1 gap-[6px]">
-                            <i class="pi pi-spinner mt-[2px] text-[24px]" style="font-size: 14px"></i>
-                            <div>Todo</div>
-                        </h1>
-                        <p class="text-[15px] text-gray-500">testing desc</p>
-                    </div>
-                </div>
 
-                <div>
-                    <div class="card flex justify-center">
-                        <Button type="button" @click="toggle" icon="pi pi-ellipsis-h" class="w-14 shadow-sm" size="small" rounded severity="secondary" />
-                        <Popover ref="op">
-                            <div class="flex flex-col gap-2 w-full text-[15px]">
-                                <button @click="visible = true ; type_ = 'edit' "class="cursor-pointer flex justify-start items-center gap-2 text-gray-300 hover:text-blue-400 duration-500">
-                                    <i class="pi pi-pen-to-square" style="font-size: 1rem"></i>
-                                    <h1>Edit</h1>
-                                </button>
-                                <button @click="visible = true ; type_ = 'remove' " class="cursor-pointer flex justify-start items-center gap-2 text-gray-300 hover:text-red-400 duration-500">
-                                    <i class="pi pi-times" style="font-size: 1rem"></i>
-                                    <h1>Remove</h1>
-                                </button>
-                            </div>
-                        </Popover>
-                    </div>
-                </div>
-            </div>
+<template>
+    <Head_tabs @update:activeTab="handleSelectedTab"/>
+    <section class="w-full h-[450px] overflow-y-auto flex flex-col gap-5 p-3">
+    <OpenModel @updatedData="updatedData_" @removedData="removedData_" :cardId="cardId_V" :visible="visible" :type="[type_]" @update:visible="visible = $event" />
+    <div v-if="filteredTasks.length < 1" class="w-full h-[450px] flex items-center justify-center">
+      <h1 class="text-4xl text-gray-500 font-semibold">No Tasks</h1>
+    </div>
+
+    <div v-for="(item, index) in filteredTasks" :key="index" class="w-full h-[150px] bg-[#20202091] border-[1px] border-[#414141b0] p-5 rounded-xl relative cursor-pointer">
+      <h1 :class=" 
+                item.praio === 'High' ? 'text-red-500' :
+                item.praio === 'Medium' ? 'text-orange-400' :
+                item.praio === 'Low' ? 'text-green-400' : ''" class="absolute top-3 right-3 font-semibold text-xs flex items-center gap-1">
+        <i class="pi pi-sort-amount-up" style="font-size: 1rem"></i>
+        {{ item.praio }}
+      </h1>
+
+      <div class="absolute bottom-3 right-3 flex items-center gap-2">
+        <div class="card flex justify-center">
+          <Button @click="handleSendOneCrad(item.id)" type="button" icon="pi pi-expand" class="w-14 shadow-sm" size="small" rounded severity="secondary" />
         </div>
-    </section>
+
+        <div class="card flex justify-center relative">
+          <Button
+            type="button"
+            icon="pi pi-ellipsis-h"
+            class="w-14 shadow-sm"
+            size="small"
+            rounded
+            severity="secondary"
+            @click="togglePopover(index)"  
+          />
+          <div
+            v-if="popoverVisible === index"
+            class="bg-[#222222] border-[1px] border-[#414141b0] rounded-br-xs rounded-tl-4xl p-4 w-[110px] h-auto rounded-xl absolute top-[-95px] right-5 z-[999]"
+          >
+            <div class="flex flex-col gap-2 w-full text-[15px]">
+              <button
+                @click="visible = true; type_ = 'edit'; cardId_V = item.id; togglePopover(index)"
+                class="cursor-pointer flex justify-start items-center gap-2 text-gray-300 hover:text-blue-400 duration-500"
+              >
+                <i class="pi pi-pen-to-square" style="font-size: 1rem"></i>
+                <h1>Edit</h1>
+              </button>
+              <button
+                @click="visible = true; type_ = 'remove'; cardId_V = item.id; togglePopover(index)"
+                class="cursor-pointer flex justify-start items-center gap-2 text-gray-300 hover:text-red-400 duration-500"
+              >
+                <i class="pi pi-times" style="font-size: 1rem"></i>
+                <h1>Remove</h1>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="flex gap-4 mb-5 items-center w-full mt-3 relative">
+        <div class="max-w-[80%] overflow-hidden flex gap-5  relative ">
+          <div>
+            <h1 class="text-xl text-gray-300 font-semibold mb-1"> {{ item.title }}</h1>
+            <h1 class="text-orange-400 font-semibold text-[14px] flex items-center mb-1 gap-[6px]">
+              <i :class="['pi pi-spinner mt-[2px] text-[24px]', 
+                item.status === 'Todo' ? 'text-orange-500' :
+                item.status === 'In Progress' ? 'text-yellow-500' :
+                item.status === 'Done' ? 'text-green-500' : ''
+              ]" style="font-size: 14px"></i>
+              <div :class=" 
+                item.status === 'Todo' ? 'text-orange-500' :
+                item.status === 'In Progress' ? 'text-yellow-500' :
+                item.status === 'Done' ? 'text-green-500' : ''"> {{ item.status }}</div>
+            </h1>
+            <p class="text-[15px] text-gray-500"> {{ item.disc }}</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
 </template>
+
+<style>
+::-webkit-scrollbar{
+  background: transparent;
+  border-radius: 30px;
+
+}
+
+::-webkit-scrollbar-thumb{
+  background: #4d4d4db0;
+  border-radius: 30px;
+  width: 2px;
+}
+
+.shdw{
+  z-index: 999;
+    background: rgb(2,0,36);
+    background: linear-gradient(to top , #101011 0%, rgba(51, 51, 51, 0) 100%);
+}
+
+</style>
+

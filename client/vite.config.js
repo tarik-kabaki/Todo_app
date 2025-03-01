@@ -12,6 +12,16 @@ export default defineConfig({
     vue(),
     vueDevTools(),
   ],
+  server: {
+    proxy: {
+      '/api': {
+        target: 'http://localhost:3000/',
+        changeOrigin: true,
+        secure: false,  // Set to true if you're using HTTPS for the backend
+        rewrite: (path) => path.replace(/^\/api/, ''), // Optional: rewrite path if needed
+      },
+    }
+  },
   resolve: {
     alias: {
       '@': fileURLToPath(new URL('./src', import.meta.url))
