@@ -14,7 +14,7 @@ export class Tasks {
   @Column()
   title: string;
 
-  @Column({ default: 'To Do' })
+  @Column({ default: 'ToDo' })
   status: string;
 
   @Column({ default: 'Low' })
