@@ -1,9 +1,10 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Tasks } from './entity/tasks.entity';
 import { TasksDto } from './dto/tasks.dto';
 import { UpdateTaskDto } from './dto/update-task.dto';
+import { error } from 'console';
 
 @Injectable()
 export class TasksService {
@@ -25,6 +26,15 @@ export class TasksService {
 
   async create_todo(tasksDto: TasksDto) {
     const task = this.tasksRepo.create(tasksDto);
+    const findExistedTask = await this.tasksRepo.findOne({
+      where: {
+        title: tasksDto.title
+      }
+    });
+
+    if (findExistedTask?.title === task?.title) {
+      throw new BadRequestException('This task is already exist');
+    }
 
     return await this.tasksRepo.save(task);
   }
@@ -33,6 +43,16 @@ export class TasksService {
     const task = await this.tasksRepo.findOne({
       where: { id: task_id },
     });
+
+    const findExistedTask = await this.tasksRepo.findOne({
+      where: {
+        title: updateTaskDto.title
+      }
+    });
+
+    if (findExistedTask?.title === updateTaskDto?.title) {
+      throw new BadRequestException('This task is already exist');
+    }
 
     if (!task) {
       throw new NotFoundException('This task is not existed');

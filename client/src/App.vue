@@ -48,7 +48,7 @@ function handleUpdateData(datas) {
 
 <template>
   <div class="w-full h-screen flex items-center justify-center bg-linear-to-r/srgb from-[#101011] to-[#18181a]">
-    <div class="relative w-[600px] max-w-[800px] h-[800px] max-h-[800px] border-[1px] border-[#363636] bg-[#1a1a1b] rounded-2xl overflow-hidden">
+    <div class="relative w-[600px] max-w-[800px] lg:h-[800px] md:h-[800px] h-full border-[1px] border-[#363636] bg-[#1a1a1b] lg:rounded-2xl md:rounded-2xl rounded-none overflow-hidden">
       <div class="shdw absolute w-full h-[50px] bottom-0 left-0"></div>
       <section :class="{
         'translate-x-[600px]': !isSideDetailsVisible,
