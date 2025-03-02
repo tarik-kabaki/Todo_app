@@ -78,10 +78,12 @@ const handleSelectedTab = (tab_data) => {
     </div>
 
     <div data-test="card__" v-for="(item, index) in filteredTasks" :key="index" class="w-full h-[150px] bg-[#20202091] border-[1px] border-[#414141b0] p-5 rounded-xl relative">
-      <h1 :class=" 
+      <h1 
+      @click="visible = true; type_ = 'praio__'; cardId_V = item.id"
+      :class=" 
                 item.praio === 'High' ? 'text-red-500' :
                 item.praio === 'Medium' ? 'text-orange-400' :
-                item.praio === 'Low' ? 'text-green-400' : ''" class="absolute top-3 right-3 font-semibold text-xs flex items-center gap-1">
+                item.praio === 'Low' ? 'text-green-400' : ''" class="absolute top-3 right-3 font-semibold text-xs flex items-center gap-1 hover:opacity-60 duration-300 cursor-pointer">
         <i class="pi pi-sort-amount-up" style="font-size: 1rem"></i>
         {{ item.praio }}
       </h1>
