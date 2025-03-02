@@ -59,7 +59,7 @@ const removedData_ = (data) => {
 };
 
 const updatedData_ = (data) => {
-  console.log(import.meta.env.VUE_SERVER_HOST);
+  // console.log(import.meta.env.VUE_SERVER_HOST);
   emit('toParentData_update', data);
 };
 
@@ -71,13 +71,13 @@ const handleSelectedTab = (tab_data) => {
 
 <template>
     <Head_tabs @update:activeTab="handleSelectedTab"/>
-    <section class="w-full h-[450px] overflow-y-auto flex flex-col gap-5 p-3">
+    <section class="w-full lg:h-[450px] md:h-[450px] h-[600px] overflow-y-auto flex flex-col gap-5 p-3">
     <OpenModel @updatedData="updatedData_" @removedData="removedData_" :cardId="cardId_V" :visible="visible" :type="[type_]" @update:visible="visible = $event" />
     <div v-if="filteredTasks.length < 1" class="w-full h-[450px] flex items-center justify-center">
       <h1 class="text-4xl text-gray-500 font-semibold">No Tasks</h1>
     </div>
 
-    <div v-for="(item, index) in filteredTasks" :key="index" class="w-full h-[150px] bg-[#20202091] border-[1px] border-[#414141b0] p-5 rounded-xl relative cursor-pointer">
+    <div data-test="card__" v-for="(item, index) in filteredTasks" :key="index" class="w-full h-[150px] bg-[#20202091] border-[1px] border-[#414141b0] p-5 rounded-xl relative">
       <h1 :class=" 
                 item.praio === 'High' ? 'text-red-500' :
                 item.praio === 'Medium' ? 'text-orange-400' :
@@ -86,13 +86,29 @@ const handleSelectedTab = (tab_data) => {
         {{ item.praio }}
       </h1>
 
+      <div @click="visible = true; type_ = 'status__'; cardId_V = item.id" class="text-orange-400 font-semibold text-[13px] mb-1 absolute left-3 top-2 cursor-pointer hover:opacity-60 duration-300">
+        <div class=" relative w-full h-full flex items-center gap-1">
+             <i :class="['pi pi-align-right mt-[2px] pt-[0.5px]', 
+                item.status === 'Todo' ? 'text-orange-500' :
+                item.status === 'In Progress' ? 'text-yellow-500' :
+                item.status === 'Done' ? 'text-green-500' : ''
+              ]" style="font-size: 12px"></i>
+              <div :class=" 
+                item.status === 'Todo' ? 'text-orange-500' :
+                item.status === 'In Progress' ? 'text-yellow-500' :
+                item.status === 'Done' ? 'text-green-500' : ''"> {{ item.status }}</div>
+            </div>
+        </div>
+           
+
       <div class="absolute bottom-3 right-3 flex items-center gap-2">
         <div class="card flex justify-center">
-          <Button @click="handleSendOneCrad(item.id)" type="button" icon="pi pi-expand" class="w-14 shadow-sm" size="small" rounded severity="secondary" />
+          <Button data-test="details_btn" @click="handleSendOneCrad(item.id)" type="button" icon="pi pi-expand" class="w-14 shadow-sm" size="small" rounded severity="secondary" />
         </div>
 
         <div class="card flex justify-center relative">
           <Button
+            data-test="card__more_btn"
             type="button"
             icon="pi pi-ellipsis-h"
             class="w-14 shadow-sm"
@@ -107,6 +123,7 @@ const handleSelectedTab = (tab_data) => {
           >
             <div class="flex flex-col gap-2 w-full text-[15px]">
               <button
+                data-test="card_edit_btn"
                 @click="visible = true; type_ = 'edit'; cardId_V = item.id; togglePopover(index)"
                 class="cursor-pointer flex justify-start items-center gap-2 text-gray-300 hover:text-blue-400 duration-500"
               >
@@ -114,6 +131,7 @@ const handleSelectedTab = (tab_data) => {
                 <h1>Edit</h1>
               </button>
               <button
+                data-test="card_remove_btn"
                 @click="visible = true; type_ = 'remove'; cardId_V = item.id; togglePopover(index)"
                 class="cursor-pointer flex justify-start items-center gap-2 text-gray-300 hover:text-red-400 duration-500"
               >
@@ -125,21 +143,10 @@ const handleSelectedTab = (tab_data) => {
         </div>
       </div>
 
-      <div class="flex gap-4 mb-5 items-center w-full mt-3 relative">
-        <div class="max-w-[80%] overflow-hidden flex gap-5  relative ">
+      <div class="flex gap-4 mb-5 items-center w-full mt-3 relative p-3">
+        <div class="max-w-[80%] overflow-hidden flex gap-5 relative ">
           <div>
-            <h1 class="text-xl text-gray-300 font-semibold mb-1"> {{ item.title }}</h1>
-            <h1 class="text-orange-400 font-semibold text-[14px] flex items-center mb-1 gap-[6px]">
-              <i :class="['pi pi-spinner mt-[2px] text-[24px]', 
-                item.status === 'Todo' ? 'text-orange-500' :
-                item.status === 'In Progress' ? 'text-yellow-500' :
-                item.status === 'Done' ? 'text-green-500' : ''
-              ]" style="font-size: 14px"></i>
-              <div :class=" 
-                item.status === 'Todo' ? 'text-orange-500' :
-                item.status === 'In Progress' ? 'text-yellow-500' :
-                item.status === 'Done' ? 'text-green-500' : ''"> {{ item.status }}</div>
-            </h1>
+            <h1 class="text-2xl text-gray-300 font-semibold"> {{ item.title }}</h1>
             <p class="text-[15px] text-gray-500"> {{ item.disc }}</p>
           </div>
         </div>
@@ -152,13 +159,14 @@ const handleSelectedTab = (tab_data) => {
 ::-webkit-scrollbar{
   background: transparent;
   border-radius: 30px;
-
+  scrollbar-width: thin;
 }
 
 ::-webkit-scrollbar-thumb{
   background: #4d4d4db0;
   border-radius: 30px;
   width: 2px;
+ 
 }
 
 .shdw{
