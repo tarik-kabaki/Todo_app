@@ -8,16 +8,14 @@ import { Tasks } from './tasks/entity/tasks.entity';
 
 @Module({
   imports: [
-    ConfigModule.forRoot(),
+    ConfigModule.forRoot({
+      isGlobal: true
+    }),
     TypeOrmModule.forRoot({
       type: 'postgres',
-      host: process.env.DB_HOST,
-      port: 5432,
-      username: process.env.DB_USERNAME,
-      password: process.env.DB_PASSWORD,
-      database: process.env.DB_NAME,
+      url: process.env.DB_URL,
       entities: [Tasks],
-      synchronize: true,
+      synchronize: false,
     }),
     TasksModule
   ],

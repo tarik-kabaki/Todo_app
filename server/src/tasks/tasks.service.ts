@@ -54,16 +54,16 @@ export class TasksService {
       throw new BadRequestException('This task is already exist');
     }
 
-    if (!task) {
-      throw new NotFoundException('This task is not existed');
+    if (task) {
+      task.status = updateTaskDto.status ? updateTaskDto.status : task.status;
+      task.praio = updateTaskDto.praio ? updateTaskDto.praio : task.praio;
+      task.title = updateTaskDto.title ? updateTaskDto.title : task.title;
+      task.disc = updateTaskDto.disc ? updateTaskDto.disc : task.disc;
+
+      return await this.tasksRepo.save(task);
     }
 
-    task.status = updateTaskDto.status ? updateTaskDto.status : task.status;
-    task.praio = updateTaskDto.praio ? updateTaskDto.praio : task.praio;
-    task.title = updateTaskDto.title ? updateTaskDto.title : task.title;
-    task.disc = updateTaskDto.disc ? updateTaskDto.disc : task.disc;
 
-    return await this.tasksRepo.save(task);
   }
 
   async remove_todo(task_id: number) {

@@ -17,6 +17,9 @@ const isEnabled = ref(false);
 const isSelected_status = ref(null);
 const isSelected_status_V = ref(null);
 
+const isSelected_praio = ref(null);
+const isSelected_praio_V = ref(null);
+
 const props = defineProps({
   visible: {
     type: Boolean,
@@ -115,8 +118,14 @@ const select_status = (status_i, data_v) => {
   isSelected_status_V.value = data_v;
 };
 
+const select_praio = (praio_i, data_v) => {
+  isSelected_praio.value = praio_i;
+  isSelected_praio_V.value = data_v;
+};
+
 const handeStatus_save = () => {
-  console.log(props.cardId)
+
+if(props.type[0] === 'status__'){
   updateData(HOST,props.cardId, {
     status: isSelected_status_V.value,
   }).then((data)=>{
@@ -129,13 +138,29 @@ const handeStatus_save = () => {
   }).catch((err)=>{
     isError.value = "This task is already exist";
   });
+} else {
+  updateData(HOST,props.cardId, {
+    praio: isSelected_praio_V.value,
+  }).then((data)=>{
+    isSelected_praio.value = null
+    isSelected_praio_V.value = null
+    isError.value = null;
+    emit('update:visible', false);
+    emit('updatedData', data);
+
+  }).catch((err)=>{
+    isError.value = "This task is already exist";
+  });
+}
+
+ 
 }
 
 </script>
 
 <template>
   <div class="card flex justify-center">
-    <Dialog data-test="card__title" v-if="props.type[0] !== 'remove' && props.type[0] !== 'status__'" v-model:visible="props.visible" modal :header="props.type[0] === 'edit' ? 'Edit Your Task' : 'Create Your Task'" :style="{ width: '25rem' }">
+    <Dialog data-test="card__title" v-if="props.type[0] !== 'remove' && props.type[0] !== 'status__' && props.type[0] !== 'praio__'" v-model:visible="props.visible" modal :header="props.type[0] === 'edit' ? 'Edit Your Task' : 'Create Your Task'" :style="{ width: '25rem' }">
              <input data-test="input_" v-model="title" class="w-full h-[50px] border-b border-[#414141b0] focus:outline-none placeholder:text-gray-600 mb-3" placeholder="Your title"/>
              <input data-test="input__" v-model="desc" class="w-full h-[50px] border-b border-[#414141b0] focus:outline-none placeholder:text-gray-600 mb-5" placeholder="Description"/>
              <div class="flex gap-3 items-center">
@@ -163,7 +188,7 @@ const handeStatus_save = () => {
          
          </Dialog>
 
-         <Dialog data-test="remove-model" v-if="props.type[0] === 'status__' " v-model:visible="props.visible" modal header="Update you status" :style="{ width: '25rem' }">
+         <Dialog data-test="remove-model" v-if="props.type[0] === 'status__' " v-model:visible="props.visible" modal header="Update your status" :style="{ width: '25rem' }">
            <button data-test="close-btn" class="flex items-center justify-center hover:opacity-60 duration-300 cursor-pointer w-[40px] h-[40px]  absolute top-5 right-5 rounded-full bg-white" type="button" label="Cancel" severity="secondary" @click="emit('update:visible', false); handleExit(), isSelected_status = null">
                 <i class="pi pi-times text-black" style="font-size: 1rem" ></i>
             </button>  
@@ -174,6 +199,20 @@ const handeStatus_save = () => {
            </div>
           <div class="w-full justify-end flex items-center gap-3 mt-5">
              <button @click="handeStatus_save" class="w-full h-[40px] rounded-md bg-slate-200 text-gray-800 text-[16px] not-first:tracking-wide hover:opacity-60 cursor-pointer duration-300 font-semibold">Save status</button>    
+            </div>
+         </Dialog>
+
+         <Dialog data-test="remove-model" v-if="props.type[0] === 'praio__'" v-model:visible="props.visible" modal header="Update your priority" :style="{ width: '25rem' }">
+           <button data-test="close-btn" class="flex items-center justify-center hover:opacity-60 duration-300 cursor-pointer w-[40px] h-[40px]  absolute top-5 right-5 rounded-full bg-white" type="button" label="Cancel" severity="secondary" @click="emit('update:visible', false); handleExit(), isSelected_praio = null">
+                <i class="pi pi-times text-black" style="font-size: 1rem" ></i>
+            </button>  
+          <div class="w-full flex flex-col gap-2 mt-5">
+            <div @click="select_praio(i, pra.name)" :class="[isSelected_praio === i ? 'bg-white text-black' : '']" v-for="(pra, i) in praio" class="w-full h-[50px] bg-[#1d1d1d] border-[1px] border-[#2e2e2e] flex items-center p-5 rounded-lg font-semibold cursor-pointer hover:bg-gray-200 hover:text-gray-900 duration-300">
+              {{ pra.name }}
+            </div>
+           </div>
+          <div class="w-full justify-end flex items-center gap-3 mt-5">
+             <button @click="handeStatus_save" class="w-full h-[40px] rounded-md bg-slate-200 text-gray-800 text-[16px] not-first:tracking-wide hover:opacity-60 cursor-pointer duration-300 font-semibold">Save priority</button>    
             </div>
          </Dialog>
 
