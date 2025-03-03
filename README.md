@@ -12,7 +12,7 @@ This is a simple TODO application built with Vue js, Nest.js, and PostgressSQL. 
 - Filter tasks by all, Todo, or Done or In progress
 - Responsive design
 
-Installation.
+<h2>Installation.</h2>
 
 Make sure you have the following installed on your system:
 Node.js
@@ -68,7 +68,27 @@ The Frontend will be accessible at http://localhost:5173.
 - Filtering Tasks:
   - Use the filter options (All, Todo, In Progress, Done) to display tasks based on their status.
 
+<h1>Docker installation</h1>
 
+1. install docker from docker website: https://docs.docker.com/get-docker/
+
+3. Navigate to the Project Directory where docker-compose.yml file is located
+```ruby
+cd /todo_app/
+```
+3.Build and Start the Containers by runing:
+
+Note: make sure that you are located in directory where (docker-compose.yml) is exist
+
+```ruby
+docker-compose up --build
+```
+
+Now you can access the project at:
+
+- Client will be available on port 80 (http://localhost:80)
+- Server will be available on port 3000 (http://localhost:3000)
+  
 <h1>Technologies Used</h1>
 
 - Frontend:
