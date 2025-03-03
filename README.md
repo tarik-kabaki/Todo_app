@@ -59,6 +59,9 @@ The Frontend will be accessible at http://localhost:5173.
 - Edit a Task:
   - Click on the "Edit" button next to a task to modify it.
 
+- Changes Task Status - priority:
+  - Click on the Status or priority button to modify it.
+
 - Delete a Task:
   - Click on the "Remove" button next to a task to remove it from the list.
 
