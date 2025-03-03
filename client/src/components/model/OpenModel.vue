@@ -16,7 +16,6 @@ const isError = ref(null);
 const isEnabled = ref(false);
 const isSelected_status = ref(null);
 const isSelected_status_V = ref(null);
-
 const isSelected_praio = ref(null);
 const isSelected_praio_V = ref(null);
 
@@ -52,6 +51,7 @@ const emit = defineEmits(['update:visible']);
 
 const createTask = async () => {
   if(props.type[0] === 'edit') {
+    isEnabled.value = true;
   updateData(HOST,props.cardId, {
     title: title.value,
     disc: desc.value,
@@ -66,23 +66,26 @@ const createTask = async () => {
      selectedPraio.value = null; 
     emit('update:visible', false);
     emit('updatedData', data);
+    isEnabled.value = false;
 
   }).catch((err)=>{
     isError.value = "This task is already exist";
+    isEnabled.value = false;
   });
 
   } else {
     if(title.value.length > 1 && desc.value.length > 1 && !selectedStatus.value.name && !selectedPraio.value.name){
     return console.log('invalid');
   } else {
+    isEnabled.value = true;
     await axios.post(`${HOST}create/`,{
-
     title: title.value,
     disc: desc.value,
     status: selectedStatus.value.name,
     praio: selectedPraio.value.name
 
   }).then((data)=>{
+    isEnabled.value = false;
     isError.value = null;
     title.value = null,
     desc.value = null,
@@ -93,6 +96,7 @@ const createTask = async () => {
 
   }).catch((err)=>{
     isError.value = "This task is already exist";
+    isEnabled.value = false;
   });
    }
   }
@@ -126,6 +130,7 @@ const select_praio = (praio_i, data_v) => {
 const handeStatus_save = () => {
 
 if(props.type[0] === 'status__'){
+  isEnabled.value = true;
   updateData(HOST,props.cardId, {
     status: isSelected_status_V.value,
   }).then((data)=>{
@@ -134,11 +139,14 @@ if(props.type[0] === 'status__'){
     isError.value = null;
     emit('update:visible', false);
     emit('updatedData', data);
+    isEnabled.value = false;
 
   }).catch((err)=>{
     isError.value = "This task is already exist";
+    isEnabled.value = false;
   });
 } else {
+  isEnabled.value = true;
   updateData(HOST,props.cardId, {
     praio: isSelected_praio_V.value,
   }).then((data)=>{
@@ -147,20 +155,20 @@ if(props.type[0] === 'status__'){
     isError.value = null;
     emit('update:visible', false);
     emit('updatedData', data);
-
+    isEnabled.value = false;
   }).catch((err)=>{
     isError.value = "This task is already exist";
+    isEnabled.value = false;
   });
-}
-
- 
+ }
 }
 
 </script>
 
 <template>
   <div class="card flex justify-center">
-    <Dialog data-test="card__title" v-if="props.type[0] !== 'remove' && props.type[0] !== 'status__' && props.type[0] !== 'praio__'" v-model:visible="props.visible" modal :header="props.type[0] === 'edit' ? 'Edit Your Task' : 'Create Your Task'" :style="{ width: '25rem' }">
+
+        <Dialog data-test="card__title" v-if="props.type[0] !== 'remove' && props.type[0] !== 'status__' && props.type[0] !== 'praio__'" v-model:visible="props.visible" modal :header="props.type[0] === 'edit' ? 'Edit Your Task' : 'Create Your Task'" :style="{ width: '25rem' }">
              <input data-test="input_" v-model="title" class="w-full h-[50px] border-b border-[#414141b0] focus:outline-none placeholder:text-gray-600 mb-3" placeholder="Your title"/>
              <input data-test="input__" v-model="desc" class="w-full h-[50px] border-b border-[#414141b0] focus:outline-none placeholder:text-gray-600 mb-5" placeholder="Description"/>
              <div class="flex gap-3 items-center">
@@ -171,7 +179,10 @@ if(props.type[0] === 'status__'){
             <button data-test="close-btn" class="flex items-center justify-center hover:opacity-60 duration-300 cursor-pointer w-[40px] h-[40px]  absolute top-5 right-5 rounded-full bg-white" type="button" label="Cancel" severity="secondary" @click="emit('update:visible', false); handleExit()">
                 <i class="pi pi-times text-black" style="font-size: 1rem" ></i>
             </button>
-            <button id="create-btn" @click="createTask" class="w-full h-[40px] rounded-md bg-slate-200 text-gray-800 text-[16px] font-semibold tracking-wide hover:opacity-60 cursor-pointer duration-300">{{ props.type[0] === 'edit' ?  "Edit Task" : "Create Task"}}</button>
+            <button v-if="isEnabled === false" id="create-btn" @click="createTask" class="w-full h-[40px] rounded-md bg-slate-200 text-gray-800 text-[16px] font-semibold tracking-wide hover:opacity-60 cursor-pointer duration-300">{{ props.type[0] === 'edit' ?  "Edit Task" : "Create Task"}}</button>
+            <button v-if="isEnabled === true" id="create-btn" @click="createTask" class="w-full h-[40px] rounded-md bg-slate-200 text-gray-800 text-[16px] font-semibold tracking-wide hover:opacity-60 cursor-pointer duration-300 flex items-center justify-center">
+              <i class="pi pi-spin pi-spinner" style="font-size: 2rem"></i>
+            </button>
             <div class="mt-2 flex justify-center text-[14px] text-red-500">{{ isError }}</div>
           </Dialog>
 
@@ -198,7 +209,10 @@ if(props.type[0] === 'status__'){
             </div>
            </div>
           <div class="w-full justify-end flex items-center gap-3 mt-5">
-             <button @click="handeStatus_save" class="w-full h-[40px] rounded-md bg-slate-200 text-gray-800 text-[16px] not-first:tracking-wide hover:opacity-60 cursor-pointer duration-300 font-semibold">Save status</button>    
+             <button v-if="isEnabled === false" @click="handeStatus_save" class="w-full h-[40px] rounded-md bg-slate-200 text-gray-800 text-[16px] not-first:tracking-wide hover:opacity-60 cursor-pointer duration-300 font-semibold">Save status</button>    
+             <button v-if="isEnabled === true" @click="handeStatus_save" class="flex items-center justify-center w-full h-[40px] rounded-md bg-slate-200 text-gray-800 text-[16px] not-first:tracking-wide hover:opacity-60 cursor-pointer duration-300 font-semibold">
+              <i class="pi pi-spin pi-spinner" style="font-size: 2rem"></i>
+             </button> 
             </div>
          </Dialog>
 
@@ -212,7 +226,10 @@ if(props.type[0] === 'status__'){
             </div>
            </div>
           <div class="w-full justify-end flex items-center gap-3 mt-5">
-             <button @click="handeStatus_save" class="w-full h-[40px] rounded-md bg-slate-200 text-gray-800 text-[16px] not-first:tracking-wide hover:opacity-60 cursor-pointer duration-300 font-semibold">Save priority</button>    
+             <button v-if="isEnabled === false" @click="handeStatus_save" class="w-full h-[40px] rounded-md bg-slate-200 text-gray-800 text-[16px] not-first:tracking-wide hover:opacity-60 cursor-pointer duration-300 font-semibold">Save priority</button>    
+             <button v-if="isEnabled === true" @click="handeStatus_save" class="flex items-center justify-center w-full h-[40px] rounded-md bg-slate-200 text-gray-800 text-[16px] not-first:tracking-wide hover:opacity-60 cursor-pointer duration-300 font-semibold">
+              <i class="pi pi-spin pi-spinner" style="font-size: 2rem"></i>
+            </button>    
             </div>
          </Dialog>
 
