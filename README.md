@@ -91,7 +91,10 @@ Now you can access the project at:
 
 - Client will be available on port 80 (http://localhost:80)
 - Server will be available on port 3000 (http://localhost:3000)
-  
+
+<h1>Note:</h1>
+- connect tarik kabaki at tarik.kabaki2000@gmail.com, for .env access
+
 <h1>Technologies Used</h1>
 
 - Frontend:
